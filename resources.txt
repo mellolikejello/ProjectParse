@@ -1,0 +1,77 @@
+http://www.gutenberg.org/ebooks/28885
+
+Brainstorming: make sure I can get txt file or parsable data
+cleaning data by hand
+can I just pull selection from site?
+
+scale - what do I want to do
+just top N words? or show more connections
+
+gutenberg patterns
+
+beg of file signature
+
+*** START OF THIS PROJECT GUTENBERG EBOOK ALICE'S ADVENTURES IN WONDERLAND ***
+
+eof signature
+*** END OF THIS PROJECT GUTENBERG EBOOK ALICE'S ADVENTURES IN WONDERLAND ***
+
+chapters?
+
+text formatting for character names?!
+
+getting started on stop words
+
+use range over time - add to d3 as data is parsed
+
+sanitize data personally for [illustration] etc or smart analysis?
+
+split by sentence at first?
+
+match case of story as it is read
+
+special keyword map for proper, frequently occuring values
+
+weird word entries
+	meanstomakeanythingprettier
+
+
+// specific data structure in map?
+challenges
+	displaying properly for so much data
+	formatting - hyphens to next row or hypens for multi-word
+
+ideas
+	colors for articles, etc
+	look up part of speech (noun, verb, etc)
+	put most heavily connected nodes into the center
+
+
+http://bl.ocks.org/cjrd/6863459
+
+directions
+	gradient
+	explore by chapter
+	highlight chapter on top of blob
+
+limit neighbors to topX neighbors or limit to top 1 word and recenter
+create a config file/object to init
+	top X values		--> adjust with sliders
+	top X neighbors
+
+
+when clicking on neighbors
+sliders to adjust settings, with preset options
+use top 3 words (as connections)
+	use color values to show intersection
+call fx.apply in TopWords
+
+value updates
+
+trouble
+	updating graph values
+	creating tooltip
+	hover event not firing -- is linked but not resource
+
+firing: directionality --> http://bl.ocks.org/d3noob/5141278
+	drawing paths as d https://www.dashingd3js.com/svg-paths-and-d3js

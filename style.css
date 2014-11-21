@@ -1,0 +1,66 @@
+body {
+	font-family: 'Lato', sans-serif;
+	color: #2299DD;
+}
+
+h1 {
+	font-family: 'Montserrat', sans-serif;
+	margin-bottom: 0;
+	padding-bottom: 2px;
+	text-align: center;
+}
+
+p {
+	font-family: 'Lato', sans-serif;
+	margin-top: 0;
+	padding-top: 0;
+	text-align: center;
+}
+
+#instruct {
+	color: black;
+	text-align: center;
+}
+
+#info {
+	background-color: rgba(216, 153, 235, 0.82);
+	border-radius: 3px;
+	display: none;
+	width: 200px;
+	position: fixed;
+	top: 0;
+	right: 0;
+	padding: 5px 0 5px 5px;
+}
+
+#info-children {
+	padding-top: 3px;
+}
+
+#info-children p {
+	margin: 0;
+	padding: 0;
+}
+
+.link {
+	stroke: #C77EDD;
+	stroke-width: 1.5px;
+}
+
+.node {
+	cursor: move;
+	//fill: #72A0C;
+	fill: #2299DD;
+}
+
+text {
+	font: 12px Lato;
+	pointer-events: none;
+	stroke: black;
+}
+
+#end {
+	fill: none;
+	stroke: #C77EDD;
+	stroke-width: 1.5px;
+}

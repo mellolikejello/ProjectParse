@@ -1,9 +1,16 @@
 var link, node, force;
 var svg;
 
+// topWords should track this
+var MAIN_NODES, MAIN_LINKS;
+
 // send data to create visuals instead of accessing globals
+// send displayNodes and allNodes
 function createForceVisual(nodes, links) {
     // orig - 900 x 500
+    //debugger;
+    MAIN_NODES = nodes;
+    MAIN_LINKS = links;
     var width = window.screen.availWidth,//window.innerWidth,
         height = window.screen.availHeight;//window.innerHeight;
 
@@ -99,6 +106,26 @@ function createForceVisual(nodes, links) {
 
 function updateGraph() {
     force.start();
+
+    return;
+
+    var nodes = flatten(root),
+        links = d3.layout.tree().links(nodes);
+    force
+        .nodes(nodes)
+        .links(links)
+        .start();
+}
+
+function flatten(root) {
+    var nodes = [];
+    // index ?
+
+    function recurse(node) {
+        //if(node.)
+    }
+
+    return nodes;
 }
 
 function tick() {
@@ -127,7 +154,70 @@ function tick() {
 
 }
 
-function nodeClick(selectedWord) {
+function nodeClick(d) {
+    // main nodes should be a hash map
+    var nodes = topWords.slicedWords,
+    // if can be generated from main nodes, this is unnecessary
+        links = topWords.slicedConnections;
+    if(d3.event.defaultPrevented) return; // ignore drag
+    generateFeedbackBox(d);
+
+    if(! d.children || ! d._children) {
+        d._children = d.post;
+    }
+
+    if(d.children) {
+        d._children = d.children;
+        d.children = null;
+        // update with main nodes and links
+    } else {
+        d.children = d._children;
+        d._children = null;
+
+        // fade exisitng nodes here
+
+        for(var word in d.children) {
+            if(! topWords.skeletonContains(word)) {
+                // these need special styling || apply to top
+                var curWord = wordMap[word];
+                nodes.push(curWord);
+            }
+            // else check if the connection is represented!
+            var curWeight = d.children[word].connectionFreq;
+            links.push({source: d, target: curWord, weight: curWeight});
+        }
+    }
+
+    // add to update function
+    force
+        .nodes(nodes)
+        .links(links)
+        .start();
+
+    link = link.data(links);
+    link.exit().remove();
+
+    link.enter().insert("line", ".node")
+        .attr("class", "link");
+
+    node = node.data(nodes);
+
+    node.exit().remove();
+
+    var nodeEnter = node.enter().append("g")
+        .attr("class", "node")
+        .on("click", nodeClick)
+        .class(force.drag);
+
+    nodeEnter.append("cirlce")
+        .attr("r", 3);
+
+    nodeEnter.append("text")
+        .text(function(d) { return d.value; });
+
+}
+
+function generateFeedbackBox(selectedWord) {
     // separate into separate event handler in doc file
     //var evt = new CustomEvent("nodeClicked", {"word": selectedWord});
     var info = document.querySelector("#info");
@@ -161,9 +251,6 @@ function nodeClick(selectedWord) {
     info.setAttribute("style", "display: block;");
     instruct.innerHTML = "Node size determined by word frequency. <br>" +
         "Line length determined by how often words occur next to eachother.";
-
-    // move this sort so word has own implementation
-    //debugger;
 }
 
 function nodeHover(d) {

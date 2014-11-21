@@ -48,7 +48,7 @@ p {
 }
 
 .node {
-	cursor: move;
+	cursor: pointer;
 	//fill: #72A0C;
 	fill: #2299DD;
 }

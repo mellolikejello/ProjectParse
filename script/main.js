@@ -1,6 +1,6 @@
 window.onload = init;
 
-var BOOK_FILE = "data/AliceFullCut.txt";
+var BOOK_FILE = "data/Pride.txt";
 var STOP_WORD_FILE = "data/stopWords.txt"
 var TOP_X_VAL = 3;
 var TOP_X_NEIGHBORS = 50;

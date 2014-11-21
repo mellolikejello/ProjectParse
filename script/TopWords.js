@@ -8,9 +8,13 @@ create topWords structure that will sort underlying array of topWords
 */
 
 function TopWords(wordMap, totalCount, N) {
-	this.connections = [];
+	this.connections = [],
+	this.slicedConnections = [],
+	this.slicedWords = [],
+	this.skeleton = {},
 	this.totalCount = totalCount;
 	var words = d3.values(wordMap);
+	// sorted list of most frequently occuring words
     this.topList = words = words.sort(function(a,b) { return sortWords(a,b); });
     // should this be sliced right away or should we return a sliceable list?
     if(N) {
@@ -69,17 +73,17 @@ TopWords.prototype = {
 	},
 
 	getSlicedWords: function(links) {
-		var words = {};
+		this.skeleton = {};
 		for(var i = 0; i < links.length; i++) {
 			var cur = links[i];
-			if(! words[cur.source.value]) {
-				words[cur.source.value] = cur.source;
+			if(! this.skeleton[cur.source.value]) {
+				this.skeleton[cur.source.value] = cur.source;
 			}
-			if(! words[cur.target.value]) {
-				words[cur.target.value] = cur.target;
+			if(! this.skeleton[cur.target.value]) {
+				this.skeleton[cur.target.value] = cur.target;
 			}
 		}
-		return d3.values(words);
+		return d3.values(this.skeleton);
 	},
 
 	// might not need numWords
@@ -91,11 +95,19 @@ TopWords.prototype = {
 		var numNeighbors = config.numNeighbors;
 		var fx = config.fx;
 
-		var slicedConnections = this.getConnections(numNeighbors);
-		var slicedWords = this.getSlicedWords(slicedConnections);
+		this.slicedConnections = this.getConnections(numNeighbors);
+		this.slicedWords = this.getSlicedWords(this.slicedConnections);
 
-		createForceVisual(slicedWords, slicedConnections);
+		createForceVisual(this.slicedWords, this.slicedConnections);
 		//fx.apply(slicedWords, slicedConnections);
+	},
+
+	skeletonContains: function(word) {
+		if(this.skeleton[word]) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 }
 

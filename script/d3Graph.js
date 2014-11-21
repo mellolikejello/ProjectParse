@@ -1,29 +1,25 @@
 var link, node, force;
+var linkScale, rScale;
+var width, height;
 var svg;
-
-// topWords should track this
-var MAIN_NODES, MAIN_LINKS;
 
 // send data to create visuals instead of accessing globals
 // send displayNodes and allNodes
 function createForceVisual(nodes, links) {
     // orig - 900 x 500
-    //debugger;
-    MAIN_NODES = nodes;
-    MAIN_LINKS = links;
-    var width = window.screen.availWidth,//window.innerWidth,
-        height = window.screen.availHeight;//window.innerHeight;
+    width = window.screen.availWidth,//window.innerWidth,
+    height = window.screen.availHeight;//window.innerHeight;
 
     // linkScale from 1 to max val
     // default 60
-    var linkScale = d3.scale.linear()
+    linkScale = d3.scale.linear()
                     .domain([
                         d3.min(links, function(d) { return d.weight; }),
                         d3.max(links, function(d) { return d.weight; })
                         ])
                     .range([20, 80]);
 
-    var rScale = d3.scale.linear()
+    rScale = d3.scale.linear()
                 .domain([
                     d3.min(nodes, function(d) { return d.occur; }),
                     d3.max(nodes, function(d) { return d.occur; })
@@ -35,6 +31,7 @@ function createForceVisual(nodes, links) {
             //.nodes(d3.values(nodes))
             .nodes(nodes)
             .links(links)
+            // can take out of global scope now
             .size([width, height])
             // set link distance to freq scaled?
             // 60
@@ -49,6 +46,8 @@ function createForceVisual(nodes, links) {
     svg = d3.select("body").append("svg")
         .attr("width", width)
         .attr("height", height);
+
+    link = svg.append("g");
 
     /* COPIED */
 
@@ -70,16 +69,28 @@ function createForceVisual(nodes, links) {
         //.style("stroke", "#4679BD");
 
     // return to norm
-    link = svg.append("g").selectAll(".link")
-        .data(force.links())
-        .enter()
+
+
+    updateGraph(nodes, links);
+
+}
+
+// don't need to send values?
+function updateGraph(nodes, links) {
+    force.start();
+
+    link = svg.selectAll(".link")
+        .data(force.links());
+    link.exit().remove();
+    link.enter()
         .append("line")
         .attr("class", "link")
         .attr("marker-end", "url(#end)");
 
     node = svg.selectAll(".node")
-        .data(force.nodes())
-        .enter()
+        .data(force.nodes());
+    node.exit().remove();
+    node.enter()
         .append("g")
         /*.append("title")
         .text(function(d) {
@@ -100,21 +111,27 @@ function createForceVisual(nodes, links) {
         .attr("dy", ".35em")
         .text(function(d) { return d.value; });
 
-    updateGraph();
+    /*
+    link = link.data(links);
+    link.exit().remove();
 
-}
+    link.enter().insert("line", ".node")
+        .attr("class", "link");
 
-function updateGraph() {
-    force.start();
+    node = node.data(nodes);
 
-    return;
+    node.exit().remove();
 
-    var nodes = flatten(root),
-        links = d3.layout.tree().links(nodes);
-    force
-        .nodes(nodes)
-        .links(links)
-        .start();
+    var nodeEnter = node.enter().append("g")
+        .attr("class", "node")
+        .on("click", nodeClick)
+        .class(force.drag);
+
+    nodeEnter.append("cirlce")
+        .attr("r", 3);
+
+    nodeEnter.append("text")
+        .text(function(d) { return d.value; }); */
 }
 
 function flatten(root) {
@@ -162,6 +179,7 @@ function nodeClick(d) {
     if(d3.event.defaultPrevented) return; // ignore drag
     generateFeedbackBox(d);
 
+    // children method unused currently
     if(! d.children || ! d._children) {
         d._children = d.post;
     }
@@ -184,36 +202,12 @@ function nodeClick(d) {
             }
             // else check if the connection is represented!
             var curWeight = d.children[word].connectionFreq;
+            // curWord target needs to be added with x, y, px, py
             links.push({source: d, target: curWord, weight: curWeight});
         }
     }
 
-    // add to update function
-    force
-        .nodes(nodes)
-        .links(links)
-        .start();
-
-    link = link.data(links);
-    link.exit().remove();
-
-    link.enter().insert("line", ".node")
-        .attr("class", "link");
-
-    node = node.data(nodes);
-
-    node.exit().remove();
-
-    var nodeEnter = node.enter().append("g")
-        .attr("class", "node")
-        .on("click", nodeClick)
-        .class(force.drag);
-
-    nodeEnter.append("cirlce")
-        .attr("r", 3);
-
-    nodeEnter.append("text")
-        .text(function(d) { return d.value; });
+    updateGraph(nodes, links);
 
 }
 

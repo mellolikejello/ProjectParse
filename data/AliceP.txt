@@ -1,8 +1,8 @@
 one two three four five five five five five one     zz
-the quick brown five jumped over the
-the dog the dog the cat the quick
-five five five
-three four three four three four
-the dog
-the dog
+the quick brown five jumped over the;
+the dog the dog the cat the quick.
+five five five.
+three four three four three four.
+the dog.
+the dog.
 the dog the dog the dog the dog the cat

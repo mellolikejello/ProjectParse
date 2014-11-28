@@ -6,19 +6,15 @@ function Word(word) {
 	this.connectionFreq;
 	this.value = word;
 	this.occur = 1;
-	// preceding words
-	this.pre = {};
 	// following words
 	this.post = {};
+	this.stop = false;
+	//this.fixed = true;
 }
 
 Word.prototype = {
 	increment: function() {
 		this.occur++;
-	},
-
-	addPreWord: function(word) {
-		this.addWord(this.pre, word);
 	},
 
 	addPostWord: function(word) {
@@ -32,7 +28,7 @@ Word.prototype = {
 	// with top level relationships
 	addWord: function(dict, word) {
 		var wordAdded = this.cloneWord(word);
-		// remove pre and post?
+		// remove post?
 		// this might help with traversal
 		//wordAdded.occur = 0;
 		if(dict[word.value] == undefined) {
@@ -54,7 +50,6 @@ Word.prototype = {
 	cloneWord: function(word) {
 		var newWord = new Word(word.value);
 		newWord.occur = word.occur;
-		newWord.pre = word.pre;
 		newWord.post = word.post;
 		return newWord;
 	},
@@ -62,7 +57,6 @@ Word.prototype = {
 	clone: function() {
 		var newWord = new Word(this.value);
 		newWord.occur = this.occur;
-		newWord.pre = this.pre;
 		newWord.post = this.post;
 		return newWord;
 	}

@@ -1,9 +1,10 @@
 window.onload = init;
 
-var BOOK_FILE = "data/Pride.txt";
+var BOOK_FILE = "data/AliceFullCut.txt";
 var STOP_WORD_FILE = "data/stopWords.txt"
 var TOP_X_VAL = 3;
 var TOP_X_NEIGHBORS = 50;
+var SENTENCE_BREAK = "||SENTENCEBREAK||";
 var wordMap;
 var wordGraph;
 var topWords;
@@ -17,8 +18,8 @@ var stopWords;
 function init() {
     wordMap = {};
     topWords = new Array(TOP_X_VAL);
-    loadFile(BOOK_FILE, parseBookFile);
     loadFile(STOP_WORD_FILE, parseStopFile);
+    loadFile(BOOK_FILE, parseBookFile);
 }
 
 function loadFile(filename, handler) {
@@ -33,7 +34,6 @@ function loadFile(filename, handler) {
 }
 
 function parseStopFile(e, xhr) {
-    //debugger;
     if(xhr.readyState == 4) {
         var bodyTokens;
         var bodyText = xhr.responseText;
@@ -56,15 +56,20 @@ function parseBookFile(e, xhr) {
         var bodyTokens;
         // store later for full text display?
         var bodyText = xhr.responseText;
+
+        bodyText = bodyText.toLowerCase();
         // remove line breaks
         bodyText = bodyText.replace(/(\r\n|\n|\r|\-)/gm," ");
         // remove special characters
-        bodyText = bodyText.replace(/[\[\]\.,\/#"!?$%\^&\*;:{}=_`~()]/g,"");
+        // take out .!?;
+        //bodyText = bodyText.replace(/[\[\]\.,\/#"!?$%\^&\*;:{}=_`~()]/g,"");
+        bodyText = bodyText.replace(/[\[\],\/#"$%\^&\*:{}=_`~()]/g,"");
+        bodyText = bodyText.replace(/[\.!?;]/g, " " + SENTENCE_BREAK + " ");
 
         // remove extra whitespace
         // double check this is valuable
         bodyText = bodyText.replace(/\s+/g, " ");
-        bodyText = bodyText.toLowerCase();
+
         bodyTokens = bodyText.split(" ");
 
         var wordCount = createWordMap(bodyTokens);
@@ -132,28 +137,37 @@ function createWordMap(tokens) {
             // if ends with '
             // create a strip word function
             // pair ownership words 's
-            if(wordMap[curWordVal] == undefined) {
-                curWord = new Word(curWordVal)
-                wordMap[curWordVal] = curWord;
-            } else {
-                curWord = wordMap[curWordVal];
-                curWord.increment();
-                // update curWord
-                //wordMap[curWordVal] = curVal;
+            if(curWordVal != SENTENCE_BREAK) {
+                if(wordMap[curWordVal] == undefined) {
+                    curWord = new Word(curWordVal)
+                    wordMap[curWordVal] = curWord;
+                } else {
+                    curWord = wordMap[curWordVal];
+                    curWord.increment();
+                    // update curWord
+                    //wordMap[curWordVal] = curVal;
+                }
+
+                // algorithm needs to be worked on
+                // TODO - figure out how to get top word
+                // solving retroactively
+                //isTopWord(curWord);
+
+                if(stopWords[curWordVal]) {
+                    curWord.stop = true;
+                }
+
+                if(prevWord != undefined) {
+                    prevWord.addPostWord(curWord);
+                }
+
+                totalWordCount++;
+                prevWord = curWord;
             }
-
-            // algorithm needs to be worked on
-            // TODO - figure out how to get top word
-            // solving retroactively
-            //isTopWord(curWord);
-
-            if(prevWord != undefined) {
-                curWord.addPreWord(prevWord);
-                prevWord.addPostWord(curWord);
+            // sentence break case, do not connect words
+            else {
+                prevWord = undefined;
             }
-
-            totalWordCount++;
-            prevWord = curWord;
         }
     }
 

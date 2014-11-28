@@ -19,6 +19,7 @@ function createForceVisual(nodes, links) {
                         ])
                     .range([20, 80]);
 
+    // may not need
     rScale = d3.scale.linear()
                 .domain([
                     d3.min(nodes, function(d) { return d.occur; }),
@@ -35,13 +36,16 @@ function createForceVisual(nodes, links) {
             .size([width, height])
             // set link distance to freq scaled?
             // 60
+            // 0.9
+            .friction(0.5)
             .linkDistance(function(d) {
                 return linkScale(d.weight);
                 //return 60;
             })
             //.charge(-300)
-            .charge(-500)
-            .on("tick", tick);
+            .charge(-800)
+            .on("tick", tick)
+            .on("end", end);
 
     svg = d3.select("body").append("svg")
         .attr("width", width)
@@ -68,7 +72,7 @@ function createForceVisual(nodes, links) {
         .attr("d", "M0,-5L10,0L0,5")
         //.style("stroke", "#4679BD");
 
-    // return to norm
+    /* END COPIED */
 
 
     updateGraph(nodes, links);
@@ -80,7 +84,8 @@ function updateGraph(nodes, links) {
     force.start();
 
     link = svg.selectAll(".link")
-        .data(force.links());
+        //.data(force.links());
+        .data(links);
     link.exit().remove();
     link.enter()
         .append("line")
@@ -88,14 +93,11 @@ function updateGraph(nodes, links) {
         .attr("marker-end", "url(#end)");
 
     node = svg.selectAll(".node")
-        .data(force.nodes());
+        //.data(force.nodes());
+        .data(nodes);
     node.exit().remove();
     node.enter()
         .append("g")
-        /*.append("title")
-        .text(function(d) {
-            return d.occur;
-        })*/
         .attr("class", "node")
         .on("click", nodeClick)
         .on("hover", nodeHover)
@@ -103,46 +105,13 @@ function updateGraph(nodes, links) {
 
     node.append("circle")
         // adjust radius for size -- 2
-        .attr("r", function(d) { return rScale(d.occur); });
-        //.attr("r", 7);
+        //.attr("r", function(d) { return rScale(d.occur); });
+        .attr("r", function(d) { return setRadius(d); });
 
     node.append("text")
         .attr("x", 12)
         .attr("dy", ".35em")
-        .text(function(d) { return d.value; });
-
-    /*
-    link = link.data(links);
-    link.exit().remove();
-
-    link.enter().insert("line", ".node")
-        .attr("class", "link");
-
-    node = node.data(nodes);
-
-    node.exit().remove();
-
-    var nodeEnter = node.enter().append("g")
-        .attr("class", "node")
-        .on("click", nodeClick)
-        .class(force.drag);
-
-    nodeEnter.append("cirlce")
-        .attr("r", 3);
-
-    nodeEnter.append("text")
-        .text(function(d) { return d.value; }); */
-}
-
-function flatten(root) {
-    var nodes = [];
-    // index ?
-
-    function recurse(node) {
-        //if(node.)
-    }
-
-    return nodes;
+        .text(function(d) { return d.stop? "" : d.value; });
 }
 
 function tick() {
@@ -151,26 +120,29 @@ function tick() {
       .attr("y1", function(d) { return d.source.y; })
       .attr("x2", function(d) { return d.target.x; })
       .attr("y2", function(d) { return d.target.y; });
-      /*
-        directional paths not working
-        http://bl.ocks.org/d3noob/5141278
-      .attr("d", function(d) {
-        var dx = d.target.x - d.source.x,
-            dy = d.target.y - d.source.y,
-            dr = Math.sqrt(dx * dx + dy * dy);
-        return "M" +
-            d.source.x + "," +
-            d.source.y + "A" +
-            dr + "," + dr + " 0 0,1 " +
-            d.target.x + "," +
-            d.target.y;
-        });*/
 
     node
       .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
 }
 
+function end() {
+    for(var i in force.nodes()) {
+        force.nodes()[i].fixed = true;
+    }
+}
+
+function setRadius(d) {
+    if(d.stop) {
+        return 2;
+    } else {
+        return 5;
+    }
+}
+
+/*
+    fade existing relationships to highlight current opening
+*/
 function nodeClick(d) {
     // main nodes should be a hash map
     var nodes = topWords.slicedWords,
@@ -248,5 +220,5 @@ function generateFeedbackBox(selectedWord) {
 }
 
 function nodeHover(d) {
-    debugger;
+    console.log("hovering over: " + d);
 }

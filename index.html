@@ -6,6 +6,8 @@
 	<link href="style.css" rel="stylesheet" type="text/css">
 	<link href='http://fonts.googleapis.com/css?family=Lato|Montserrat' rel='stylesheet' type='text/css'>
 	<!--<script src="http://d3js.org/d3.v3.min.js" ></script> -->
+	<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+  	<script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
 	<script src="d3/d3.min.js" ></script>
 	<script src="script/main.js" ></script>
 	<script src="script/d3Graph.js" ></script>
@@ -13,12 +15,13 @@
 	<script src="script/TopWords.js" ></script>
 </head>
 <body>
-	<h1>Alice in Wonderland</h1>
-	<p>Most frequent word relationships</p>
-	<div id="instruct">Click on a node to view more info. Nodes are also draggable.</div>
+	<!--<h1>Alice in Wonderland</h1>
+	<p>Most frequent word relationships</p> -->
+	<div id="instruct" style="display:none">Click on a node to view more info. Nodes are also draggable.</div>
+	<input id="search">
 	<div id="info">
 		"<span id="info-word"></span>" occurs <span id="info-freq">X</span> times <br>
-		often followed by <br> 
+		often followed by <br>
 		<div id="info-children">
 		</div>
 	</div>

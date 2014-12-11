@@ -40,6 +40,11 @@ function createForceVisual(nodes, links) {
             .friction(0.5)
             .linkDistance(function(d) {
                 return linkScale(d.weight);
+                /*if(d.source.stop || d.target.stop) {
+                    return 1;
+                } else {
+                    return linkScale(d.weight);
+                }*/
                 //return 60;
             })
             //.charge(-300)
@@ -81,7 +86,7 @@ function createForceVisual(nodes, links) {
 
 // don't need to send values?
 function updateGraph(nodes, links) {
-    force.start();
+
 
     link = svg.selectAll(".link")
         //.data(force.links());
@@ -100,7 +105,7 @@ function updateGraph(nodes, links) {
         .append("g")
         .attr("class", "node")
         .on("click", nodeClick)
-        .on("hover", nodeHover)
+        .on("mouseover", nodeHover)
         .call(force.drag);
 
     node.append("circle")
@@ -111,7 +116,9 @@ function updateGraph(nodes, links) {
     node.append("text")
         .attr("x", 12)
         .attr("dy", ".35em")
-        .text(function(d) { return d.stop? "" : d.value; });
+        // display stop word text?
+        .text(function(d) { return d.value; return d.stop? "" : d.value; });
+    force.start();
 }
 
 function tick() {
@@ -149,7 +156,7 @@ function nodeClick(d) {
     // if can be generated from main nodes, this is unnecessary
         links = topWords.slicedConnections;
     if(d3.event.defaultPrevented) return; // ignore drag
-    generateFeedbackBox(d);
+    //generateFeedbackBox(d);
 
     // children method unused currently
     if(! d.children || ! d._children) {
@@ -220,5 +227,5 @@ function generateFeedbackBox(selectedWord) {
 }
 
 function nodeHover(d) {
-    console.log("hovering over: " + d);
+    generateFeedbackBox(d);
 }

@@ -87,6 +87,13 @@ function parseBookFile(e, xhr) {
             "fx": createForceVisual});
         //createForceVisual(topWords.getWords(), topWords.getConnections());
 
+        // autocomplete
+        // find a way to do this without jquery
+        $(function() {
+            //var searchBar = document.querySelector("#search");
+            var terms = d3.keys(topWords.allWords);
+            $("#search").autocomplete({source: terms});
+        });
     }
 }
 
@@ -153,7 +160,8 @@ function createWordMap(tokens) {
                 // solving retroactively
                 //isTopWord(curWord);
 
-                if(stopWords[curWordVal]) {
+                // wait for stop words to load
+                if(stopWords && stopWords[curWordVal]) {
                     curWord.stop = true;
                 }
 
@@ -224,3 +232,5 @@ function isTopWord(word) {
         }
     }
 }
+
+

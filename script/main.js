@@ -61,7 +61,6 @@ function parseBookFile(e, xhr) {
         // remove line breaks
         bodyText = bodyText.replace(/(\r\n|\n|\r|\-)/gm," ");
         // remove special characters
-        // take out .!?;
         //bodyText = bodyText.replace(/[\[\]\.,\/#"!?$%\^&\*;:{}=_`~()]/g,"");
         bodyText = bodyText.replace(/[\[\],\/#"$%\^&\*:{}=_`~()]/g,"");
         bodyText = bodyText.replace(/[\.!?;]/g, " " + SENTENCE_BREAK + " ");
@@ -145,20 +144,37 @@ function createWordMap(tokens) {
             // create a strip word function
             // pair ownership words 's
             if(curWordVal != SENTENCE_BREAK) {
+                if(curWordVal.length > 2) {
+                    if(curWordVal.indexOf("'s") == curWordVal.length-2) {
+                        // add it, continue with is
+                        if(curWordVal == "it's") {
+                            if(wordMap["it"] == undefined) {
+                                curWord = new Word("it", totalWordCount);
+                                wordMap["it"] = curWord;
+                            } else {
+                                curWord = wordMap["it"];
+                                curWord.addOccursAt(totalWordCount);
+                            }
+                            if(prevWord != undefined) {
+                                prevWord.addPostWord(curWord);
+                            }
+                            curWord.stop = true;
+                            prevWord = curWord;
+                            totalWordCount++;
+                            curWordVal = "is";
+                        } else {
+                            curWordVal = curWordVal.substring(0, curWordVal.length-2);
+                        }
+                    }
+                }
+
                 if(wordMap[curWordVal] == undefined) {
-                    curWord = new Word(curWordVal)
+                    curWord = new Word(curWordVal, totalWordCount);
                     wordMap[curWordVal] = curWord;
                 } else {
                     curWord = wordMap[curWordVal];
-                    curWord.increment();
-                    // update curWord
-                    //wordMap[curWordVal] = curVal;
+                    curWord.addOccursAt(totalWordCount);
                 }
-
-                // algorithm needs to be worked on
-                // TODO - figure out how to get top word
-                // solving retroactively
-                //isTopWord(curWord);
 
                 // wait for stop words to load
                 if(stopWords && stopWords[curWordVal]) {
@@ -181,56 +197,3 @@ function createWordMap(tokens) {
 
     return totalWordCount;
 }
-
-/*
-    find top N words
-
-    applying sort - can make more efficient if only need top x values
-    placed in sep obj
-*/
-function findTopWords(N) {
-
-    /*for(var wordPos = 0; wordPos < words.length; wordPos++) {
-        for(var topPos = 0; topPos < TOP_X_VAL; topPos++) {
-            if(topWords[topPos] == undefined) {
-                topWords[topPos] = words[wordPos];
-                break;
-            } else if(topWords[topPos].occur < words[wordPos].occur) {
-                if(topPos == 0) {
-                    topWords.unshift(words[wordPos]);
-                } else {
-                    var tempWords = topWords;
-                    topWords = topWords.slice(0, topWords);
-                    topWords = topWords.concat(words[wordPos], tempWords.slice(topPos,tempWords.length));
-                }
-                topWords = topWords.slice(0, N);
-                break;
-
-            }
-        }
-    }*/
-}
-
-// unused currently - algorithm needs update
-function isTopWord(word) {
-    for(var i = 0; i < topWords.length; i++) {
-        if(topWords[i] == undefined) {
-            topWords[i] = word;
-            return true;
-            break;
-        } else if(topWords[i].occur <= word.occur) {
-            if(topWords[i] === word) {
-                return;
-            }
-            // slice to this position and move rest of list down
-            // add this element at position
-            var tempWords = topWords;
-            //debugger;
-            topWords = topWords.slice(0, i);
-            topWords = topWords.concat(word, tempWords.slice(i,tempWords.length));
-            return true;
-        }
-    }
-}
-
-

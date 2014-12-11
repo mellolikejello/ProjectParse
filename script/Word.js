@@ -2,19 +2,23 @@
 // subclass for top level with occur
 // subclass for neighbor with strength/frequency
 // add sort value compare?
-function Word(word) {
+function Word(word, index) {
 	this.connectionFreq;
 	this.value = word;
 	this.occur = 1;
 	// following words
 	this.post = {};
+	this.positions = [];
 	this.stop = false;
 	//this.fixed = true;
+
+	this.positions.push(index);
 }
 
 Word.prototype = {
-	increment: function() {
+	addOccursAt: function(index) {
 		this.occur++;
+		this.positions.push(index);
 	},
 
 	addPostWord: function(word) {

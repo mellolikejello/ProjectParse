@@ -17,6 +17,10 @@ p {
 	text-align: center;
 }
 
+ul {
+	list-style-type: none;
+}
+
 #instruct {
 	color: black;
 	text-align: center;

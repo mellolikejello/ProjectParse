@@ -52,7 +52,7 @@ function createForceVisual(nodes, links) {
             .on("tick", tick)
             .on("end", end);
 
-    svg = d3.select("body").append("svg")
+    svg = d3.select("#d3-skeleton").append("svg")
         .attr("width", width)
         .attr("height", height);
 

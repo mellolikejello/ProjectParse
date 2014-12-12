@@ -82,10 +82,16 @@ function parseBookFile(e, xhr) {
         // create force directed graph
         // is this needed?
         //wordGraph = createForceDirectedGraph(topWords);
+
+
+
+        // TODO -- return this
         topWords.sendData({"numWords": TOP_X_VAL, "numNeighbors": TOP_X_NEIGHBORS,
             "fx": createForceVisual});
-        //createForceVisual(topWords.getWords(), topWords.getConnections());
 
+        generateTimeline(topWords.allWords["alice"], topWords.totalCount);
+
+        //createForceVisual(topWords.getWords(), topWords.getConnections());
         // autocomplete
         // find a way to do this without jquery
         $(function() {
@@ -94,34 +100,6 @@ function parseBookFile(e, xhr) {
             $("#search").autocomplete({source: terms});
         });
     }
-}
-
-// unused
-// currently iterating through post words
-// whole visual
-// send graph?
-function createForceDirectedGraph(wordData) {
-    var graph = [];
-
-    for(var word in wordData) {
-        var curWord = wordData[word];
-        for(var postWord in curWord.post) {
-            // put into a different function?
-
-            //if(topWords)
-
-            var graphPoint = new Object();
-            var curPostWord = curWord.post[postWord];
-            graphPoint.source = curWord;
-            graphPoint.target = wordData[postWord];//curPostWord;
-            // add strength of connection
-            graphPoint.weight = curPostWord.connectionFreq;
-            graph.push(graphPoint);
-        }
-    }
-
-    return graph;
-
 }
 
 function createWordMap(tokens) {

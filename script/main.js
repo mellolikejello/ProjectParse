@@ -58,7 +58,7 @@ function onBookSelected(e) {
     var i = e.target.options.selectedIndex;
     var book = bookOptions[i];
 
-    searchWords = "";
+    searchWords = [];
     var display = document.querySelector("#display-words");
     display.innerHTML = "";
     loadFile(book.file, parseBookFile);

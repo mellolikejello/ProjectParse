@@ -21,10 +21,6 @@
         "author": "Lewis Carroll",
         "file": "data/AliceInWonderland.txt"
         },
-        {"title": "Les Miserables",
-        "author": "Victor Hugo",
-        "file": "data/Miserables.txt"
-        },
         {"title": "Pride and Prejudice",
         "author": "Jane Austen",
         "file": "data/Pride.txt"

@@ -19,7 +19,7 @@ function createForceVisual(nodes, links) {
                         d3.min(links, function(d) { return d.weight; }),
                         d3.max(links, function(d) { return d.weight; })
                         ])
-                    .range([30, 80]);
+                    .range([80, 50]);
 
     // may not need
     rScale = d3.scale.linear()
@@ -96,6 +96,20 @@ function createForceVisual(nodes, links) {
 
 // don't need to send values?
 function updateGraph(nodes, links) {
+    // create function with main.js: 194
+    // if(isSkeleton) {
+    //     var display = document.querySelector("#display-words");
+    //     for(var initI in nodes) {
+    //         var elem = document.createElement("span");
+    //         elem.className = "word";
+    //         elem.textContent = nodes[initI].value;
+    //         elem.addEventListener("click", removeWord);
+    //         display.appendChild(elem);
+
+    //         searchWords.push(nodes[initI].value);
+    //     }
+    // }
+
     force.nodes(nodes);
     force.links(links);
 

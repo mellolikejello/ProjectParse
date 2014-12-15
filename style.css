@@ -14,15 +14,40 @@ p {
 	font-family: 'Lato', sans-serif;
 	margin-top: 0;
 	padding-top: 0;
-	text-align: center;
+}
+
+input {
+	font-family: 'Lato', sans-serif;
 }
 
 ul {
+	font-family: 'Lato', sans-serif;
 	list-style-type: none;
 }
 
 ul li {
+	font-family: 'Lato', sans-serif;
 	cursor: pointer;
+}
+
+button {
+	background-clip: padding-box;
+	background-color:#F0F0F0;
+	border: none;
+	border-color: #A0A0A0;
+	border-radius: 2px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.24);
+	cursor: pointer;
+	font-size: 14px;
+	padding: 5px;
+}
+
+button:hover {
+	background-color: white;
+}
+
+#reset {
+	margin-top: 10px;
 }
 
 .ui-autocomplete ul {
@@ -33,19 +58,36 @@ ul li {
 	display: none;
 }
 
+#display-words {
+	margin-top: 10px;
+	width: 400px;
+}
+
+.word {
+	cursor: pointer;
+	margin: 5px;
+}
+
+.word:hover {
+	text-decoration: line-through;
+}
+
 #instruct {
 	color: black;
 	text-align: center;
 }
 
 #info {
-	background-color: rgba(216, 153, 235, 0.82);
-	border-radius: 3px;
+	background-color: #F0F0F0;
+	border-radius: 2px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.24);
 	display: none;
 	width: 200px;
 	position: fixed;
 	top: 0;
 	right: 0;
+	margin-top: 10px;
+	margin-right: 10px;
 	padding: 5px 0 5px 5px;
 }
 
@@ -72,9 +114,9 @@ ul li {
 }
 
 .stop-word {
-	stroke: #888888;
+	stroke: #B8B8B8;
 	stroke-width: 2px;
-	fill: #888888;
+	fill: #B8B8B8;
 }
 
 .open-word {

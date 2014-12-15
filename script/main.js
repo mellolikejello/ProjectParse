@@ -23,6 +23,9 @@ function init() {
     topWords = new Array(TOP_X_VAL);
     loadFile(BOOK_CATALOG, parseBookCatalog);
     loadFile(STOP_WORD_FILE, parseStopFile);
+
+    var resetBtn = document.querySelector("#reset");
+    resetBtn.addEventListener("click", reset);
 }
 
 function loadFile(filename, handler) {
@@ -50,8 +53,14 @@ function parseBookCatalog(e, xhr) {
 
 function onBookSelected(e) {
     isSkeleton = true;
+    var info = document.querySelector("#info");
+    info.style.display = "none";
     var i = e.target.options.selectedIndex;
     var book = bookOptions[i];
+
+    searchWords = "";
+    var display = document.querySelector("#display-words");
+    display.innerHTML = "";
     loadFile(book.file, parseBookFile);
 }
 
@@ -135,8 +144,37 @@ function parseBookFile(e, xhr) {
 
 function onWordSelected(e, selected) {
     isSkeleton = false;
-
+    // not doing anything
+    e.currentTarget.value = "";
     selectWordandUpdate(selected.item.value);
+}
+
+function removeWord(e) {
+    var word = e.currentTarget;
+    var i = searchWords.indexOf(word.textContent);
+    searchWords.splice(i, 1);
+    e.currentTarget.parentElement.removeChild(word);
+
+    var nodes = force.nodes();
+    var links = force.links();
+
+    for(var nodeI in nodes) {
+        if(nodes[nodeI].value == word.value) {
+            nodes.splice(nodeI, 1);
+        }
+    }
+
+    for(var linkI in links) {
+        if(links[linkI].source.value == word.value) {
+            links.splice(linkI, 1);
+        }
+    }
+
+    if(searchWords.length == 0) {
+        updateGraph([], []);
+    } else {
+        selectWordandUpdate(searchWords[0]);
+    }
 }
 
 function selectWordandUpdate(selectedWordValue) {
@@ -158,12 +196,20 @@ function selectWordandUpdate(selectedWordValue) {
             curWord._children = null;
         }
         searchWords.push(selectedWordValue);
+        var display = document.querySelector("#display-words");
+        var elem = document.createElement("span");
+        elem.className = "word";
+        elem.textContent = selectedWordValue;
+        elem.addEventListener("click", removeWord);
+        display.appendChild(elem);
     }
 
     var result = getSearchConnections(searchWords);
 
     updateGraph(result.nodes, result.links);
 }
+
+
 
 function getSearchConnections(searchWords) {
     var nodes = [],
@@ -172,9 +218,6 @@ function getSearchConnections(searchWords) {
         var result = getNodesAndLinks(wordMap[searchWords[i]]);
         var linkResult = result.links;
         var nodeResult = result.nodes;
-
-        debugger;
-
         nodes = removeOverlapNodes(nodes, nodeResult);
         links = removeOverlapLinks(links, linkResult);
     }
@@ -309,4 +352,13 @@ function createWordMap(tokens) {
 function printConnections() {
     var n = force.nodes(); for(var i in n) {console.log(n[i].value)}
     var links = force.links(); for(var i in links) {console.log(links[i].source.value + "-->" + links[i].target.value)}
+}
+
+function reset(e) {
+    searchWords = [];
+    var display = document.querySelector("#display-words");
+    display.innerHTML = "";
+    var info = document.querySelector("#info");
+    info.style.display = "none";
+    updateGraph(topWords.slicedWords, topWords.slicedConnections);
 }

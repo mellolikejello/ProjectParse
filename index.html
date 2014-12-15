@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Project Parse</title>
+	<title>Final Project</title>
 	<link href="style.css" rel="stylesheet" type="text/css">
 	<link href='http://fonts.googleapis.com/css?family=Lato|Montserrat' rel='stylesheet' type='text/css'>
 	<!--<script src="http://d3js.org/d3.v3.min.js" ></script> -->
@@ -16,14 +16,13 @@
 	<script src="script/TopWords.js" ></script>
 </head>
 <body>
-	<!--<h1>Alice in Wonderland</h1>
-	<p>Most frequent word relationships</p> -->
+	<p>Words that most frequently occur next to each other in:</p>
 	<div id="instruct" style="display:none">Click on a node to view more info. Nodes are also draggable.</div>
-	<select id="book-select"></select>
-	<input class="search-word">
+	<select id="book-select" placeholder="Select a Book"></select>
+	<input class="search-word" placeholder="Search for a Word" onclick="this.select()"</input>
 	<div id="display-words">
 	</div>
-	<button>Reset</button>
+	<button id="reset">Reset</button>
 	<div id="info">
 		"<span id="info-word"></span>" occurs <span id="info-freq">X</span> times <br>
 		often followed by <br>

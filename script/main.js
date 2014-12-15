@@ -10,7 +10,7 @@ var wordMap;
 var wordGraph;
 var topWords;
 var stopWords;
-var firstWord, secondWord;
+var searchWords;
 
 /* currently
         loads book and stop files
@@ -19,6 +19,7 @@ var firstWord, secondWord;
 */
 function init() {
     wordMap = {};
+    searchWords = [];
     topWords = new Array(TOP_X_VAL);
     loadFile(BOOK_CATALOG, parseBookCatalog);
     loadFile(STOP_WORD_FILE, parseStopFile);
@@ -124,14 +125,9 @@ function parseBookFile(e, xhr) {
         // autocomplete
         // find a way to do this without jquery
         $(function() {
-            //var searchBar = document.querySelector("#search");
             var terms = d3.keys(topWords.allWords);
-            $("#search").autocomplete({source: terms});
-            $("#first-word").autocomplete({source: terms});
-            $("#second-word").autocomplete({source: terms});
-
-            $("#first-word").on("autocompleteselect", onWordSelected);
-            $("#second-word").on("autocompleteselect", onWordSelected);
+            $(".search-word").autocomplete({source: terms});
+            $(".search-word").on("autocompleteselect", onWordSelected);
 
         });
     }
@@ -139,46 +135,101 @@ function parseBookFile(e, xhr) {
 
 function onWordSelected(e, selected) {
     isSkeleton = false;
-    var curWord;
-    var nodes = [];
-    var links = [];
-    if(e.currentTarget.id == "first-word") {
-        firstWord = wordMap[selected.item.value];
-        curWord = firstWord;
-        if(secondWord) {
-            nodes = force.nodes();
-            links = force.links();
+
+    selectWordandUpdate(selected.item.value);
+}
+
+function selectWordandUpdate(selectedWordValue) {
+    var curWord = wordMap[selectedWordValue];
+
+    if(searchWords.indexOf(selectedWordValue) > -1) {
+        if(curWord.children == null) {
+            curWord.children = curWord._children;
+            curWord._children = null;
+        } else {
+            curWord._children = curWord.children;
+            curWord.children = null;
         }
     } else {
-        secondWord = wordMap[selected.item.value];
-        curWord = secondWord;
-        if(firstWord) {
-            nodes = force.nodes();
-            links = force.links();
+        if(curWord._children == null) {
+            curWord.children = curWord.getTopNeighbors(10);
+        } else {
+            curWord.children = curWord._children;
+            curWord._children = null;
+        }
+        searchWords.push(selectedWordValue);
+    }
+
+    var result = getSearchConnections(searchWords);
+
+    updateGraph(result.nodes, result.links);
+}
+
+function getSearchConnections(searchWords) {
+    var nodes = [],
+        links = [];
+    for(var i in searchWords) {
+        var result = getNodesAndLinks(wordMap[searchWords[i]]);
+        var linkResult = result.links;
+        var nodeResult = result.nodes;
+
+        debugger;
+
+        nodes = removeOverlapNodes(nodes, nodeResult);
+        links = removeOverlapLinks(links, linkResult);
+    }
+
+    return {'nodes': nodes, 'links': links};
+}
+
+function removeOverlapLinks(result, addedLinks) {
+    var newResult = result;
+    for(var i in addedLinks) {
+        if(! linksContain(newResult, addedLinks[i])) {
+            newResult.push(addedLinks[i]);
         }
     }
 
-    //send number of neighbors to get
-    var topNeighbors = curWord.getTopNeighbors(25);
-    var origNeighbors = getOriginalWords(curWord.getTopNeighbors(25));
-    origNeighbors.push(curWord);
-    for(var curNeighbor in origNeighbors) {
-        if(! nodesContain(nodes, origNeighbors[curNeighbor])) {
-            nodes.push(origNeighbors[curNeighbor]);
+    return newResult;
+}
+
+function removeOverlapNodes(result, addedNodes) {
+    var newResult = result;
+    for(var i in addedNodes) {
+        if(! nodesContain(newResult, addedNodes[i].value)) {
+            newResult.push(addedNodes[i]);
         }
     }
 
-    for(var i in topNeighbors) {
-        var graphPoint = new Object();
-        graphPoint.source = curWord;
-        graphPoint.target = wordMap[topNeighbors[i].value];
-        graphPoint.weight = topNeighbors[i].connectionFreq;
-        if(! linksContain(links, graphPoint)) {
-            links.push(graphPoint);
+    return newResult;
+}
+
+// give Word object
+function getNodesAndLinks(curWord) {
+    var nodes = [];
+    var links = [];
+
+    nodes.push(curWord);
+
+    if(curWord.children) {
+        for(var i in curWord.children) {
+            var curChild = curWord.children[i];
+            var origChild = wordMap[curChild.value];
+
+            var link = new Object();
+            link.source = curWord;
+            link.target = origChild;
+            link.weight = curChild.connectionFreq;
+
+            links.push(link);
+
+            var result = getNodesAndLinks(origChild);
+            nodes = removeOverlapNodes(nodes, result.nodes);
+            links = removeOverlapLinks(links, result.links);
         }
     }
 
-    updateGraph(nodes, links);
+    return {'nodes': nodes, 'links': links};
 }
 
 function createWordMap(tokens) {
@@ -253,4 +304,9 @@ function createWordMap(tokens) {
     }
 
     return totalWordCount;
+}
+
+function printConnections() {
+    var n = force.nodes(); for(var i in n) {console.log(n[i].value)}
+    var links = force.links(); for(var i in links) {console.log(links[i].source.value + "-->" + links[i].target.value)}
 }

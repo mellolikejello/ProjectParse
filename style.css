@@ -29,6 +29,10 @@ ul li {
 	list-style-type: none;
 }
 
+.ui-helper-hidden-accessible {
+	display: none;
+}
+
 #instruct {
 	color: black;
 	text-align: center;

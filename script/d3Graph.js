@@ -19,7 +19,7 @@ function createForceVisual(nodes, links) {
                         d3.min(links, function(d) { return d.weight; }),
                         d3.max(links, function(d) { return d.weight; })
                         ])
-                    .range([20, 80]);
+                    .range([30, 80]);
 
     // may not need
     rScale = d3.scale.linear()
@@ -89,19 +89,17 @@ function createForceVisual(nodes, links) {
         //.style("stroke", "#4679BD");
 
     /* END COPIED */
+
     updateGraph(nodes, links);
 
 }
 
 // don't need to send values?
 function updateGraph(nodes, links) {
-    //d3.selectAll(".link").remove();
-    //d3.selectAll(".node").remove();
-
     force.nodes(nodes);
     force.links(links);
 
-    link = svg.selectAll(".link")
+    link = svg.select(".all-links").selectAll(".link")
         .data(links);
     link.exit().remove();
     link.enter()
@@ -109,7 +107,7 @@ function updateGraph(nodes, links) {
         .attr("class", "link")
         .attr("marker-end", "url(#end)");
 
-    node = svg.selectAll(".node")
+    node = svg.select(".all-nodes").selectAll(".node")
         .data(nodes);
     node.exit().remove();
     node.enter()
@@ -150,9 +148,9 @@ function tick() {
 }
 
 function end() {
-    for(var i in force.nodes()) {
+    //for(var i in force.nodes()) {
         //force.nodes()[i].fixed = true;
-    }
+    //}
 }
 
 function getCircleClass(d) {
@@ -178,59 +176,9 @@ function setRadius(d) {
     }
 }
 
-/*
-    fade existing relationships to highlight current opening
-*/
 function nodeClick(d) {
-    debugger;
-    // main nodes should be a hash map
-    if(firstWord || secondWord || !isSkeleton) {
-        var nodes = force.nodes(),
-        // if can be generated from main nodes, this is unnecessary
-        links = force.links();
-    } else {
-        var nodes = [];
-        var links = [];
-        nodes.push(d);
-    }
-
-    if(d3.event.defaultPrevented) return; // ignore drag
-    //generateFeedbackBox(d);
-
-    // children method unused currently
-    if(! d.children || ! d._children) {
-        d._children = d.getTopNeighbors(10);
-    }
-
-    if(d.children) {
-        d._children = d.children;
-        d.children = null;
-        // update with main nodes and links
-    } else {
-        d.children = d._children;
-        d._children = null;
-
-        // fade exisitng nodes here
-
-        for(var word in d.children) {
-            var curWord = wordMap[d.children[word].value];
-            if(! nodesContain(nodes, d.children[word].value)) {
-                // these need special styling || apply to top
-                nodes.push(curWord);
-            }
-            // else check if the connection is represented!
-            var curWeight = d.children[word].connectionFreq;
-            // curWord target needs to be added with x, y, px, py
-            var connection = {source: d, target: curWord, weight: curWeight};
-            if(! linksContain(links, connection)) {
-                links.push(connection);
-            }
-        }
-    }
-
+    selectWordandUpdate(d.value);
     isSkeleton = false;
-    updateGraph(nodes, links);
-
 }
 
 function generateFeedbackBox(selectedWord) {

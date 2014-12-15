@@ -21,6 +21,14 @@ ul {
 	list-style-type: none;
 }
 
+ul li {
+	cursor: pointer;
+}
+
+.ui-autocomplete ul {
+	list-style-type: none;
+}
+
 #instruct {
 	color: black;
 	text-align: center;
@@ -47,14 +55,26 @@ ul {
 }
 
 .link {
-	stroke: #C77EDD;
+	//stroke: #C77EDD;
+	stroke: #888888;
 	stroke-width: 1.5px;
 }
 
 .node {
 	cursor: pointer;
-	//fill: #72A0C;
 	fill: #2299DD;
+	stroke: #2299DD;
+	//fill: #2ecc71;
+}
+
+.stop-word {
+	stroke: #888888;
+	stroke-width: 2px;
+	fill: #888888;
+}
+
+.open-word {
+	fill: white;
 }
 
 text {
@@ -65,7 +85,7 @@ text {
 
 #end {
 	fill: none;
-	stroke: #C77EDD;
+	stroke: #888888;
 	stroke-width: 1.5px;
 }
 

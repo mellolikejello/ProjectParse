@@ -118,3 +118,26 @@ function sortWords(a, b) {
 function sortConnections(a, b) {
 	return b.weight - a.weight;
 }
+
+function sortPostWordConnection(a, b) {
+	return b.connectionFreq - a.connectionFreq;
+}
+
+function nodesContain(nodeList, curNodeValue) {
+	for(var i in nodeList) {
+		if(nodeList[i].value == curNodeValue) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function linksContain(linkList, connection) {
+	for(var i in linkList) {
+		var curLink = linkList[i];
+		if(curLink.source == connection.source && curLink.target == connection.target) {
+			return true;
+		}
+	}
+	return false;
+}

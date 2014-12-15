@@ -63,5 +63,29 @@ Word.prototype = {
 		newWord.occur = this.occur;
 		newWord.post = this.post;
 		return newWord;
+	},
+
+	getOverallFreqPercent: function(totalWordCount) {
+		if(! this.totalFreqPercent) {
+			this.totalFreqPercent = this.occur / totalWordCount * 100;
+		}
+		return this.totalFreqPercent;
+	},
+
+	getTopNeighbors: function(numNeighbors) {
+		if(! this.sortedPost) {
+			var neighbors = d3.values(this.post);
+			this.sortedPost = neighbors.sort(function(a, b) { return sortPostWordConnection(a, b); });
+		}
+		return this.sortedPost.slice(0, numNeighbors);
 	}
+}
+
+function getOriginalWords(wordList) {
+	for(var i in wordList) {
+		var curWord = wordMap[wordList[i].value];
+		wordList[i] = curWord;
+	}
+
+	return wordList;
 }

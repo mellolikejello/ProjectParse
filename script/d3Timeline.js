@@ -3,6 +3,7 @@ function generateTimeline(word, totalNumWords) {
     var h = 100;
     var xScale = d3.scale.linear()
         .domain([0, totalNumWords])
+        //.range([10, 510]);
         .range([10, 510]);
         //.tickFormat(10, "+%");
     var xAxis = d3.svg.axis()

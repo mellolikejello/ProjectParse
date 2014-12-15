@@ -3,6 +3,8 @@ var linkScale, rScale;
 var width, height;
 var svg;
 
+var isSkeleton = true;
+
 // send data to create visuals instead of accessing globals
 // send displayNodes and allNodes
 function createForceVisual(nodes, links) {
@@ -52,11 +54,20 @@ function createForceVisual(nodes, links) {
             .on("tick", tick)
             .on("end", end);
 
-    svg = d3.select("#d3-skeleton").append("svg")
-        .attr("width", width)
-        .attr("height", height);
+    svg = d3.select("#d3-skeleton");
 
-    link = svg.append("g");
+    d3.select("#force-direct").remove();
+
+    svg = svg.append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("id", "force-direct");
+
+    link = svg.append("g")
+        .attr("class", "all-links");
+
+    node = svg.append("g")
+        .attr("class", "all-nodes");
 
     /* COPIED */
 
@@ -78,18 +89,19 @@ function createForceVisual(nodes, links) {
         //.style("stroke", "#4679BD");
 
     /* END COPIED */
-
-
     updateGraph(nodes, links);
 
 }
 
 // don't need to send values?
 function updateGraph(nodes, links) {
+    //d3.selectAll(".link").remove();
+    //d3.selectAll(".node").remove();
 
+    force.nodes(nodes);
+    force.links(links);
 
     link = svg.selectAll(".link")
-        //.data(force.links());
         .data(links);
     link.exit().remove();
     link.enter()
@@ -98,7 +110,6 @@ function updateGraph(nodes, links) {
         .attr("marker-end", "url(#end)");
 
     node = svg.selectAll(".node")
-        //.data(force.nodes());
         .data(nodes);
     node.exit().remove();
     node.enter()
@@ -108,9 +119,13 @@ function updateGraph(nodes, links) {
         .on("mouseover", nodeHover)
         .call(force.drag);
 
+    node.selectAll("circle").remove();
+    node.selectAll("text").remove();
+
     node.append("circle")
         // adjust radius for size -- 2
         //.attr("r", function(d) { return rScale(d.occur); });
+        .attr("class", function(d) { return getCircleClass(d); })
         .attr("r", function(d) { return setRadius(d); });
 
     node.append("text")
@@ -118,6 +133,7 @@ function updateGraph(nodes, links) {
         .attr("dy", ".35em")
         // display stop word text?
         .text(function(d) { return d.value; return d.stop? "" : d.value; });
+
     force.start();
 }
 
@@ -135,13 +151,28 @@ function tick() {
 
 function end() {
     for(var i in force.nodes()) {
-        force.nodes()[i].fixed = true;
+        //force.nodes()[i].fixed = true;
     }
+}
+
+function getCircleClass(d) {
+    var classname;
+    if(d.stop) {
+        classname = "stop-word";
+    } else {
+        classname = "reg-word"
+    }
+
+    if(d.children != null) {
+        classname += " open-word"
+    }
+
+    return classname;
 }
 
 function setRadius(d) {
     if(d.stop) {
-        return 2;
+        return 4;
     } else {
         return 5;
     }
@@ -151,16 +182,24 @@ function setRadius(d) {
     fade existing relationships to highlight current opening
 */
 function nodeClick(d) {
+    debugger;
     // main nodes should be a hash map
-    var nodes = topWords.slicedWords,
-    // if can be generated from main nodes, this is unnecessary
-        links = topWords.slicedConnections;
+    if(firstWord || secondWord || !isSkeleton) {
+        var nodes = force.nodes(),
+        // if can be generated from main nodes, this is unnecessary
+        links = force.links();
+    } else {
+        var nodes = [];
+        var links = [];
+        nodes.push(d);
+    }
+
     if(d3.event.defaultPrevented) return; // ignore drag
     //generateFeedbackBox(d);
 
     // children method unused currently
     if(! d.children || ! d._children) {
-        d._children = d.post;
+        d._children = d.getTopNeighbors(10);
     }
 
     if(d.children) {
@@ -174,18 +213,22 @@ function nodeClick(d) {
         // fade exisitng nodes here
 
         for(var word in d.children) {
-            if(! topWords.skeletonContains(word)) {
+            var curWord = wordMap[d.children[word].value];
+            if(! nodesContain(nodes, d.children[word].value)) {
                 // these need special styling || apply to top
-                var curWord = wordMap[word];
                 nodes.push(curWord);
             }
             // else check if the connection is represented!
             var curWeight = d.children[word].connectionFreq;
             // curWord target needs to be added with x, y, px, py
-            links.push({source: d, target: curWord, weight: curWeight});
+            var connection = {source: d, target: curWord, weight: curWeight};
+            if(! linksContain(links, connection)) {
+                links.push(connection);
+            }
         }
     }
 
+    isSkeleton = false;
     updateGraph(nodes, links);
 
 }

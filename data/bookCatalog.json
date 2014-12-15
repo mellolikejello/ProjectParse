@@ -1,0 +1,33 @@
+{
+    "source": "https://www.gutenberg.org/browse/scores/top",
+    "books": [
+        {"title": "A Christmas Carol",
+        "author": "Charles Dickens",
+        "file": "data/Carol.txt"
+        },
+        {"title": "A Tale of Two Cities",
+        "author": "Charles Dickens",
+        "file": "data/ATOTC.txt"
+        },
+        {"title": "The Adventures of Sherlock Holmes",
+        "author": "Sir Arthur Conan Doyle",
+        "file": "data/Sherlock.txt"
+        },
+        {"title": "Adventures of Huckleberry Finn",
+        "author": "Mark Twain",
+        "file": "data/HuckleberryFinn.txt"
+        },
+        {"title": "Alice's Adventures in Wonderland",
+        "author": "Lewis Carroll",
+        "file": "data/AliceInWonderland.txt"
+        },
+        {"title": "Les Miserables",
+        "author": "Victor Hugo",
+        "file": "data/Miserables.txt"
+        },
+        {"title": "Pride and Prejudice",
+        "author": "Jane Austen",
+        "file": "data/Pride.txt"
+        }
+    ]
+}

@@ -1,7 +1,8 @@
 window.onload = init;
 
-var BOOK_FILE = "data/AliceFullCut.txt";
-var STOP_WORD_FILE = "data/stopWords.txt"
+var bookOptions;
+var BOOK_CATALOG = "data/bookCatalog.json";
+var STOP_WORD_FILE = "data/stopWords.txt";
 var TOP_X_VAL = 3;
 var TOP_X_NEIGHBORS = 50;
 var SENTENCE_BREAK = "||SENTENCEBREAK||";
@@ -9,6 +10,7 @@ var wordMap;
 var wordGraph;
 var topWords;
 var stopWords;
+var firstWord, secondWord;
 
 /* currently
         loads book and stop files
@@ -18,19 +20,38 @@ var stopWords;
 function init() {
     wordMap = {};
     topWords = new Array(TOP_X_VAL);
+    loadFile(BOOK_CATALOG, parseBookCatalog);
     loadFile(STOP_WORD_FILE, parseStopFile);
-    loadFile(BOOK_FILE, parseBookFile);
 }
 
 function loadFile(filename, handler) {
-    // separate xhrs?
     var xhr = new XMLHttpRequest();
     xhr.open('GET', filename);
     xhr.responseType = "text";
-    // to do work on range req?
-    //xhr.setRequestHeader("Range", "bytes=" + range);
     xhr.onreadystatechange = function(e) { handler(e, xhr) };
     xhr.send();
+}
+
+function parseBookCatalog(e, xhr) {
+    if(xhr.readyState == 4) {
+        bookOptions = JSON.parse(xhr.responseText).books;
+        var options = document.querySelector("#book-select");
+        for(var i in bookOptions) {
+            var element = document.createElement("option");
+            element.textContent = bookOptions[i].title
+            element.value = bookOptions[i].title;
+            options.appendChild(element);
+        }
+        loadFile(bookOptions[0].file, parseBookFile);
+        options.addEventListener("change", onBookSelected);
+    }
+}
+
+function onBookSelected(e) {
+    isSkeleton = true;
+    var i = e.target.options.selectedIndex;
+    var book = bookOptions[i];
+    loadFile(book.file, parseBookFile);
 }
 
 function parseStopFile(e, xhr) {
@@ -71,8 +92,16 @@ function parseBookFile(e, xhr) {
 
         bodyTokens = bodyText.split(" ");
 
+        if(topWords) {
+            // reset values
+            topWords = null;
+            wordMap = {};
+            wordGraph = null;
+        }
+
         var wordCount = createWordMap(bodyTokens);
         // can be done as it is created?
+
         topWords = new TopWords(wordMap, wordCount);
         //topWords = new TopWords(wordMap, TOP_X_VAL);
 
@@ -89,7 +118,7 @@ function parseBookFile(e, xhr) {
         topWords.sendData({"numWords": TOP_X_VAL, "numNeighbors": TOP_X_NEIGHBORS,
             "fx": createForceVisual});
 
-        generateTimeline(topWords.allWords["alice"], topWords.totalCount);
+        //generateTimeline(topWords.allWords["alice"], topWords.totalCount);
 
         //createForceVisual(topWords.getWords(), topWords.getConnections());
         // autocomplete
@@ -98,8 +127,58 @@ function parseBookFile(e, xhr) {
             //var searchBar = document.querySelector("#search");
             var terms = d3.keys(topWords.allWords);
             $("#search").autocomplete({source: terms});
+            $("#first-word").autocomplete({source: terms});
+            $("#second-word").autocomplete({source: terms});
+
+            $("#first-word").on("autocompleteselect", onWordSelected);
+            $("#second-word").on("autocompleteselect", onWordSelected);
+
         });
     }
+}
+
+function onWordSelected(e, selected) {
+    isSkeleton = false;
+    var curWord;
+    var nodes = [];
+    var links = [];
+    if(e.currentTarget.id == "first-word") {
+        firstWord = wordMap[selected.item.value];
+        curWord = firstWord;
+        if(secondWord) {
+            nodes = force.nodes();
+            links = force.links();
+        }
+    } else {
+        secondWord = wordMap[selected.item.value];
+        curWord = secondWord;
+        if(firstWord) {
+            nodes = force.nodes();
+            links = force.links();
+        }
+    }
+
+    //send number of neighbors to get
+    var topNeighbors = curWord.getTopNeighbors(25);
+    var origNeighbors = getOriginalWords(curWord.getTopNeighbors(25));
+    origNeighbors.push(curWord);
+    for(var curNeighbor in origNeighbors) {
+        if(! nodesContain(nodes, origNeighbors[curNeighbor])) {
+            nodes.push(origNeighbors[curNeighbor]);
+        }
+    }
+
+    for(var i in topNeighbors) {
+        var graphPoint = new Object();
+        graphPoint.source = curWord;
+        graphPoint.target = wordMap[topNeighbors[i].value];
+        graphPoint.weight = topNeighbors[i].connectionFreq;
+        if(! linksContain(links, graphPoint)) {
+            links.push(graphPoint);
+        }
+    }
+
+    updateGraph(nodes, links);
 }
 
 function createWordMap(tokens) {
